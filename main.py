@@ -7,18 +7,6 @@ import time
 import subprocess
 from PIL import Image
 from collections import defaultdict
-############################################################################################
-#######メモ
-#######これ単体だとこれ以上早くならなさそうなので、色相やらなんやらに基づいてファイル名を変更して
-#######ソートやら検索やらを高速化する案
-#######→粗くて速いふるいにかけてからやると早くなる理論(粗くて速いふるい=色相データのみの判断とか)
-#######例えば"r"+str((Rの合計値)/画素数)+"g"+str((Gの合計値)/画素数)+"b"+str((Bの合計値)/画素数)
-#######試してみないとわからないがこれで各値誤差+-1の範囲にしてふるいにかければそもそも処理しないといけない数は減る
-#######同名ファイル問題を防ぐために語尾に何かしら重複しない文字列を追加したい、time系とか
-#######新しくアプリを作るor実行前に行わせる
-#######実行前に行わせる場合、実行済みのファイルか区別するために先頭に何かつけるとか
-#######もしくは実行中のみ一時的に変更して後で戻すとか？（遅そう）
-#############################################################################################
 THIS_FOLDER=__file__.replace("\\"+os.path.basename(__file__),"")
 #########################日本語を含むファイルパス対策用cv2.imread()###############################
 ##################################################################################################
@@ -33,19 +21,19 @@ def imread(filename, flags=cv2.IMREAD_COLOR, dtype=numpy.uint8):
 #####################################################################################################
 #########################日本語を含むファイルパス対策用cv2.imwrite()###############################
 ##################################################################################################
-def imwrite(filename, img, params=None):
-    try:
-        ext = os.path.splitext(filename)[1]
-        result, n = cv2.imencode(ext, img, params)
-        if result:
-            with open(filename, mode='w+b') as f:
-                n.tofile(f)
-            return True
-        else:
-            return False
-    except Exception as e:
-        print(e)
-        return False
+#def imwrite(filename, img, params=None):
+#    try:
+#        ext = os.path.splitext(filename)[1]
+#        result, n = cv2.imencode(ext, img, params)
+#        if result:
+#            with open(filename, mode='w+b') as f:
+#                n.tofile(f)
+#            return True
+#        else:
+#            return False
+#    except Exception as e:
+#        print(e)
+#        return False
 #########################################################################################################
 ##########################################
 def filename(path):
@@ -189,23 +177,23 @@ class Application(tk.Frame):
                 f.write(outputtext)
                 f.close()
                 subprocess.run(["start",THIS_FOLDER+"\\linkmake.vbs"],shell=True)
-    def rename(self,path):
-        fileA_paths=self.search_png(path)#A以下に存在する全てのpngのpathのリスト
-        fileA=[imread(i) for i in fileA_paths]#Aのpngデータ群のリスト
-        for a ,p in zip(fileA,fileA_paths):
-            if ("R" in filename(p)[0] and "B" in filename(p)[0] and "G" in filename(p)[0]) ==False:
-                print("rename")
-                c=numpy.array(a).flatten()
-                newname="("+filename(p)[0]+")"+"B"+str(round(numpy.mean(c[0::3])))+"G"+str(round(numpy.mean(c[1::3])))+"R"+str(round(numpy.mean(c[2::3])))
-                os.rename(p,p.replace(filename(p)[0]+filename(p)[1],newname+filename(p)[1]))
-    def rerename(self,path):
-        fileA_paths=self.search_png(path)#A以下に存在する全てのpngのpathのリスト
-        for p in fileA_paths:
-            if ("R" in filename(p)[0] and "B" in filename(p)[0] and "G" in filename(p)[0]) ==True:
-                print("rerename")
-                newname=p.replace(filename(p)[0]+filename(p)[1],filename(p)[0].replace("(","")+filename(p)[1])
-                newname=newname.replace(filename(p)[0].replace("(",""),filename(p)[0].replace("(","").replace(filename(p)[0][filename(p)[0].find(")"):],"").replace(filename(p)[1],""))
-                os.rename(p,newname)
+#    def rename(self,path):
+#        fileA_paths=self.search_png(path)#A以下に存在する全てのpngのpathのリスト
+#        fileA=[imread(i) for i in fileA_paths]#Aのpngデータ群のリスト
+#        for a ,p in zip(fileA,fileA_paths):
+#            if ("R" in filename(p)[0] and "B" in filename(p)[0] and "G" in filename(p)[0]) ==False:
+#                print("rename")
+#                c=numpy.array(a).flatten()
+#                newname="("+filename(p)[0]+")"+"B"+str(round(numpy.mean(c[0::3])))+"G"+str(round(numpy.mean(c[1::3])))+"R"+str(round(numpy.mean(c[2::3])))
+#                os.rename(p,p.replace(filename(p)[0]+filename(p)[1],newname+filename(p)[1]))
+#    def rerename(self,path):
+#        fileA_paths=self.search_png(path)#A以下に存在する全てのpngのpathのリスト
+#        for p in fileA_paths:
+#            if ("R" in filename(p)[0] and "B" in filename(p)[0] and "G" in filename(p)[0]) ==True:
+#                print("rerename")
+#                newname=p.replace(filename(p)[0]+filename(p)[1],filename(p)[0].replace("(","")+filename(p)[1])
+#                newname=newname.replace(filename(p)[0].replace("(",""),filename(p)[0].replace("(","").replace(filename(p)[0][filename(p)[0].find(")"):],"").replace(filename(p)[1],""))
+#                os.rename(p,newname)
     def state(self,files,paths):
         out_rgb=defaultdict(list)
         out_path={}
