@@ -39,14 +39,14 @@ def imread(filename, flags=cv2.IMREAD_COLOR, dtype=numpy.uint8):
 def filename(path):
     return os.path.splitext(os.path.basename(path))[0],os.path.splitext(os.path.basename(path))[1]
 ##########################################
-def removekakko(text):
-    while True:
-        start=text.find("(")
-        fin=text.find(")")
-        if start==-1:
-            return text
-        print(start,fin)
-        text=text.replace(text[start:fin+1],"")
+#def removekakko(text):
+#    while True:
+#        start=text.find("(")
+#        fin=text.find(")")
+#        if start==-1:
+#            return text
+#        print(start,fin)
+#        text=text.replace(text[start:fin+1],"")
 
 class Application(tk.Frame):
     def __init__(self,master):
@@ -55,15 +55,15 @@ class Application(tk.Frame):
         self.file_path=tk.filedialog.askdirectory(initialdir=THIS_FOLDER)
         if self.file_path=="":
             exit()
-        self.iqual_file_check_A()
-        #self.rename(self.file_path)
-        #self.rerename(self.file_path)
-        print("fin")
+        self.button1=tk.Button(master,text="2フォルダ間重複検索",command=self.iqual_file_check_AB)
+        self.button2=tk.Button(master,text="単フォルダ内重複検索",command=self.iqual_file_check_A)
+        self.button1.grid(column=0,row=0)
+        self.button2.grid(column=1,row=0)
     def search_png(self,path):#パス以下にある全てのpngのpathのリストを返す
         png_path_list=[]
         files=os.listdir(path)
         for file in files:
-            if file.endswith(".png") or file.endswith(".jpg"):#.png or .jpgを見つけた場合
+            if file.endswith(".png") or file.endswith(".jpg") or file.endswith(".jpeg"):#.png or .jpg or .jpegを見つけた場合
                 png_path_list.append(path+"/"+file)
             elif os.path.isdir(path+"/"+file):#フォルダを見つけた場合
                 png_path_list=png_path_list+self.search_png(path+"/"+file)#リストのため結合
@@ -132,8 +132,8 @@ class Application(tk.Frame):
                 subprocess.run(["start",THIS_FOLDER+"\\linkmake.vbs"],shell=True)
                 end=time.time()
                 print(str(end-start)+"秒")
+                subprocess.Popen(["start",THIS_FOLDER+"\\result"], shell=True)
     def equal(self,a,b):
-        
         if a.shape!=b.shape:#形が異なる場合
             return False
             #hight=min([a.shape[0],b.shape[0]])#たて
@@ -177,6 +177,7 @@ class Application(tk.Frame):
                 f.write(outputtext)
                 f.close()
                 subprocess.run(["start",THIS_FOLDER+"\\linkmake.vbs"],shell=True)
+                subprocess.Popen(["start",THIS_FOLDER+"\\result"], shell=True)
 #    def rename(self,path):
 #        fileA_paths=self.search_png(path)#A以下に存在する全てのpngのpathのリスト
 #        fileA=[imread(i) for i in fileA_paths]#Aのpngデータ群のリスト
